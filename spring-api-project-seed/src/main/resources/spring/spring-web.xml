@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <mvc:default-servlet-handler/>
+    <!-- 配置SpringMVC -->
+    <!-- 1:开启SpringMVC注解模式 -->
+    <!-- 简化配置:
+        (1)自动注册DefaultAnnotationHandlerMapping,AnnotationMethodHandlerAdapter
+        (2)提供一系列:数据绑定,数字和日期的format @NumberFormat,@DataTimeFormat,
+            xml,json默认读写支持.
+     -->
+    <mvc:annotation-driven>
+        <mvc:message-converters register-defaults="true">
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="fastJsonConfig" ref="fastJsonConfig"/>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    <bean id="fastJsonConfig" class="com.alibaba.fastjson.support.config.FastJsonConfig">
+        <!--   自定义配置...   -->
+        <property name="dateFormat" value="yyyy-MM-dd HH:mm:ss"/>
+        <property name="features">
+            <list>
+                <value>AllowArbitraryCommas</value>
+                <value>AllowUnQuotedFieldNames</value>
+                <value>DisableCircularReferenceDetect</value>
+            </list>
+        </property>
+
+    </bean>
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+    <bean id="requestIntercepter" class="com.company.project.config.RequestIntercepter"/>
+    <aop:config>
+        <aop:aspect ref="requestIntercepter" id="requestIntercepterID">
+            <aop:pointcut
+                    expression="execution(* com.company.project.web.*.*(..)) or @annotation(org.springframework.web.bind.annotation.RequestMapping))"
+                    id="requestPointcut"/>
+            <aop:around method="doAroundAdvice" pointcut-ref="requestPointcut" arg-names="jp"/>
+        </aop:aspect>
+    </aop:config>
+    <!--
+        2:静态资源默认servlet配置
+        1:加入对静态资源的处理:js,gif,png
+        2:允许使用"/"做整体映射
+     -->
+    <mvc:default-servlet-handler/>
+
+    <!--3:配置jsp 显示ViewResolver -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+
+    </bean>
+
+    <!--4:扫描web相关的bean -->
+    <context:component-scan base-package="com.company.project.web"/>
+
+    <import resource="spring-dao.xml"/>
+    <import resource="spring-service.xml"/>
+
+    <!--国际化-->
+    <!--<bean id="messageSource"-->
+    <!--class="org.springframework.context.support.ResourceBundleMessageSource">-->
+    <!--<property name="defaultEncoding" value="UTF-8"/>-->
+    <!--<property name="basenames">-->
+    <!--<list>-->
+    <!--<value>messages.welcome</value>-->
+    <!--</list>-->
+    <!--</property>-->
+    <!--</bean>-->
+
+    <!--文件上传-->
+    <!--<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">-->
+    <!--<property name="maxUploadSize" value="100000"/>-->
+    <!--</bean>-->
+</beans>
