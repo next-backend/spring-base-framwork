@@ -25,11 +25,11 @@
 package tk.mybatis.springboot.service;
 
 import com.github.pagehelper.PageHelper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.springboot.mapper.CityMapper;
 import tk.mybatis.springboot.model.City;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -39,7 +39,7 @@ import java.util.List;
 @Service
 public class CityService {
 
-    @Autowired
+    @Resource
     private CityMapper cityMapper;
 
     public List<City> getAll(City city) {

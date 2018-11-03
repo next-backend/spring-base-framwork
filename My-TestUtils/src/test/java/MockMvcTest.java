@@ -19,7 +19,7 @@ import java.util.Map;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:spring-web.xml")
 @WebAppConfiguration
-public abstract class BaseWebTest {
+public abstract class MockMvcTest {
     public MockMvc mockMvc;
 
     @Resource

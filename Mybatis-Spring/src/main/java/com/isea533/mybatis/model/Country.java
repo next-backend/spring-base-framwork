@@ -1,6 +1,13 @@
 package com.isea533.mybatis.model;
 
-import javax.persistence.*;
+
+import tk.mybatis.mapper.annotation.Version;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 
 @Table(name = "country")
 public class Country {
@@ -21,6 +28,12 @@ public class Country {
      * 代码
      */
     private String countrycode;
+
+    /**
+     * 乐观锁操作
+     */
+    @Version
+    private Integer version;
 
     /**
      * 获取主键
@@ -74,5 +87,13 @@ public class Country {
      */
     public void setCountrycode(String countrycode) {
         this.countrycode = countrycode;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

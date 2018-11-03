@@ -36,6 +36,7 @@ import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by liuzh on 2015/3/7.
@@ -44,6 +45,7 @@ public class PageMapperTest extends BasicTest {
 
     @Resource
     private CountryMapper countryMapper;
+    private AtomicInteger integer = new AtomicInteger(0);
 
 //    @Resource
 //    private SqlSession sqlSession;
@@ -56,8 +58,8 @@ public class PageMapperTest extends BasicTest {
             protected void call() {
 //                CountryMapper countryMapper = sqlSession.getMapper(CountryMapper.class);
                 Example example = new Example(Country.class);
-                example.createCriteria().andGreaterThan("id",100);
-                PageHelper.startPage(2,10);
+                example.createCriteria().andGreaterThan("id", 100);
+                PageHelper.startPage(2, 10);
                 List<Country> countries = countryMapper.selectByExample(example);
                 PageInfo<Country> pageInfo = new PageInfo<Country>(countries);
                 System.out.println(pageInfo.getTotal());
@@ -66,5 +68,31 @@ public class PageMapperTest extends BasicTest {
                 System.out.println(pageInfo.getTotal());
             }
         });
+    }
+
+    @Test
+    public void testUpdate() throws InterruptedException {
+        TaskUtil.runTask(3, new TaskRunner() {
+            @Override
+            protected void call() {
+                update(0);
+            }
+        });
+    }
+
+    private void update(int i) {
+        i++;
+        if (i < 3) {
+            Country condition = new Country();
+            condition.setId(183);
+            Country country = countryMapper.selectOne(condition) ;
+            country.setCountrycode(String.valueOf(integer.incrementAndGet()));
+            country.setCountryname("country" + country.getCountrycode());
+            int result = countryMapper.updateByPrimaryKey(country) ;
+            System.out.println("updated " + i);
+            if (result == 0) {
+                update(i);
+            }
+        }
     }
 }
